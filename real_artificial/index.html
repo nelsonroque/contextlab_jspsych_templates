@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Real vs Artificial Images | Cogtasks.com</title>
+
+    <!-- needed so page does not zoom in case someone double taps -->
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0, maximum-scale=1.0" />
+
+    <!-- Load JsPsych from root folder (so that it is shared across tasks) -->
+    <script src="../jspsych/jspsych.js"></script>
+    <script src="../jspsych/plugin-preload.js"></script>
+    <script src="../jspsych/plugin-instructions.js"></script>
+    <script src="../jspsych/plugin-html-keyboard-response.js"></script>
+    <script src="../jspsych/plugin-html-button-response.js"></script>
+
+    <!-- Load API storage function + any others -->
+    <script src="../utils.js"></script>
+
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="../jspsych/jspsych.css" />
+
+    <!-- manifest -->
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/manifest -->
+    <!-- <link rel="manifest" href="manifest.json" /> -->
+</head>
+
+<body>
+    <div id="container"></div>
+    <script src="./task.js"></script>
+</body>
+
+</html>

@@ -1,2 +1,3 @@
-# contextlab_jspsych_templates
- Templates to support student learning of designing web-based experiments.
+# JsPsych Templates
+
+- [Choice RT task; buttons contain images](real_artificial)
