@@ -1,0 +1,5 @@
+library(readxl)
+library(jsonlite)
+trials_table <- read_excel("trials.xlsx", sheet="trials")
+trials_table_json = toJSON(trials_table, pretty = F)
+write_json(trials_table, "trial_table.json")
