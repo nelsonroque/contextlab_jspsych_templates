@@ -58,6 +58,8 @@ const trial_duration = 1000;
 // --- init any counters
 var event_type; // for logging event type that causes data to be saved
 
+var points_value;
+
 // ============================================================================
 // --- DETERMINE USER PLATFORM
 // ============================================================================
@@ -254,6 +256,10 @@ var trial = {
         data.task_section = "test";
         trial_counter++;
         data.trial_num = trial_counter;
+        console.log("points before calculation: " + points_value);
+        points_value = points_value - 1000;
+        data.current_points = points_value;
+        console.log("points after calculation: " + points_value);
         //increment points_counter
     },
 };
