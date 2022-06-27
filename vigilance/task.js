@@ -305,6 +305,8 @@ var trial = {
 
         // echo points to verify calculations
         data.current_points = current_points;
+        console.log("accuracy (binary): " + data.correct);
+        console.log("accuracy (recoded): " + data.accuracy_recode);
         console.log("current points:" + current_points);
         console.log("----------------------------------------"); // end of console.log stream for this trial
 
