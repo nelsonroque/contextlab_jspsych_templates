@@ -64,8 +64,9 @@ const feedback_duration = 500;
 var event_type; // for logging event type that causes data to be saved
 
 // --- init points
-var points_value = 1000000;
+var starting_points = 200000;
 var action_value = 1000;
+var current_points = starting_points;
 
 // ============================================================================
 // --- DETERMINE USER PLATFORM
@@ -85,6 +86,7 @@ document.body.className += onMobile ? "mobile" : "desktop";
 const jsPsych = initJsPsych({
     // setting the display element (default: body)
     display_element: "container",
+    
     // send data to server if browser interaction changes (e.g. participant leaves tab)
     on_interaction_data_update: () => {
         console.log("callback: on_interaction_data_update()");
@@ -193,10 +195,10 @@ jsPsych.data.addProperties({
     trial_num: null,
 
     // --- initialize points
-    total_points_start: points_value, // set to $1,000,000 at beginning of experiment
+    total_points_start: starting_points, // set to $1,000,000 at beginning of experiment
     total_points_per_action: action_value,
 
-    current_points: points_value,
+    current_points: starting_points,
 
     // --- collect window /screen information
     useragent: navigator.userAgent,
@@ -219,14 +221,14 @@ const instructions = {
     pages: [
         "In this test, small numbers (0-9) will flash very briefly at the center of the screen.",
         "Your job is to let us know when you see the number 0 (zero) flash on the screen by pressing the [SPACE] key in your keyboard.",
-        // "If you see “0”, press [SPACE].",
-        // "If you see anything else, do nothing.",
-        // "For example, if you see a “0” on the screen, press [SPACE] as soon as possible.<br>But if you see a “3”, do not press anything.",
-        // "You will see a check mark ✔️ if you pressed [SPACE] when there was a '0'",
-        // "You will see a cross ❌ if you missed or pressed [SPACE] for the wrong number.",
-        // "Try your best to respond quickly and correctly.",
-        // "First, we will have a practice run.",
-        // "Proceed to the next page when you are ready to start practicing.",
+        "If you see “0”, press [SPACE].",
+        "If you see anything else, do nothing.",
+        "For example, if you see a “0” on the screen, press [SPACE] as soon as possible.<br>But if you see a “3”, do not press anything.",
+        "You will see a check mark ✔️ if you pressed [SPACE] when there was a '0'",
+        "You will see a cross ❌ if you missed or pressed [SPACE] for the wrong number.",
+        "Try your best to respond quickly and correctly.",
+        "First, we will have a practice run.",
+        "Proceed to the next page when you are ready to start practicing.",
         "Press 'Next' to start the activity.",
     ].map((it) => "<div class='instructions'>" + it + "</div>"),
     show_clickable_nav: true,
@@ -256,7 +258,7 @@ const msg_exp_complete = {
 var fixation = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: '<div style="font-size:60px;">+</div>',
-    choices: "NO_KEYS",
+    choices: "NO_KEYS", // i.e., do not accept keyboard input to advance
     trial_duration: fixation_duration,
 };
 
@@ -273,33 +275,46 @@ var trial = {
     on_finish: (data) => {
         // add trial timestamps and other metadata
         data.trial_timestamp = new Date().toISOString();
-        console.log(jsPsych.timelineVariable('num'));
-        console.log("()()()()()()()()()");
 
         // determine accuracy first (if 0 and spacebar pressed, this is correct)
         var spacebar_pressed = jsPsych.pluginAPI.compareKeys(data.response, " ");
+        console.log("Trial timestamp: " + data.trial_timestamp);
         console.log("Stimuli value: " + jsPsych.timelineVariable('num'));
         console.log("response:" + data.response);
         console.log("response if spacebar:" + spacebar_pressed);
+        console.log("----------------------------------------");
+
+        // coding accuracy
+        // {SPACE} AND {0} = true
+        // {NULL} AND {!0} = true
 
         if(jsPsych.pluginAPI.compareKeys(data.response, " ") && jsPsych.timelineVariable('num') == '0'){
             data.correct = true;
-            data.current_points = data.current_points + action_value;
+            data.accuracy_recode = "HIT";
+            current_points = current_points + action_value;
         }
-        else if(jsPsych.pluginAPI.compareKeys(data.response, " ") && jsPsych.timelineVariable('num') != '0') {
-            data.correct = false;
-            data.current_points = data.current_points - action_value;
+        else if(jsPsych.pluginAPI.compareKeys(data.response, null) && jsPsych.timelineVariable('num') != '0') {
+            data.correct = true;
+            data.accuracy_recode = "CORRECT_REJECTION";
+            current_points = current_points - action_value;
         } 
         else {
             data.correct = false;
-            data.current_points = data.current_points - action_value;
+            data.accuracy_recode = "FALSE_ALARM";
+            current_points = current_points - action_value;
         }
+
+        // echo points to verify calculations
+        data.current_points = current_points;
+        console.log("current points:" + current_points);
 
         // add other metadata
         data.trial_type = "vigilance-stimuli";
         data.task_section = "test";
         trial_counter++;
         data.trial_num = trial_counter;
+
+        return data;
     },
 };
 
@@ -307,16 +322,20 @@ var trial = {
 // --- create feedback screens for each type of feedback
 var feedback_binary = {
     type: jsPsychHtmlKeyboardResponse,
-    choices: "NO_KEYS",
+    choices: "NO_KEYS", // i.e., do not accept keyboard input to advance
     trial_duration: feedback_duration,
+
+    // get the last trial's accuracy value to 'draw' feedback
     stimulus: function(){
         var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct;
         if(last_trial_correct){
-          return "<p>Correct!</p>"; // the parameter value has to be returned from the function
+          return "<div class='bigbox' id='feedback-good'><p>Correct!</p></div>"; // the parameter value has to be returned from the function
         } else {
-          return "<p>Wrong ❌.</p>"; // the parameter value has to be returned from the function
+          return "<div class='bigbox' id='feedback-bad'><p>Wrong ❌.</p></div>"; // the parameter value has to be returned from the function
         }
     }, 
+
+    // add additional data to current trial
     on_finish: (data) => {
         // add trial timestamps and other metadata
         data.trial_timestamp = new Date().toISOString();
@@ -327,18 +346,22 @@ var feedback_binary = {
 
 var feedback_points = {
     type: jsPsychHtmlKeyboardResponse,
-    choices: "NO_KEYS",
+    choices: "NO_KEYS", // i.e., do not accept keyboard input to advance
     trial_duration: feedback_duration,
+
+    // get the last trial's accuracy value to 'draw' feedback
     stimulus: function(){
         var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct;
         var last_trial_points = jsPsych.data.get().last(1).values()[0].current_points;
         if(last_trial_correct){
-            return "<p>Correct!</p><br><p>Points:"+last_trial_points+"</p>"; // the parameter value has to be returned from the function
+            return "<div class='bigbox' id='feedback-good'><p>Correct!</p><br><p>Points:"+last_trial_points+"</p></div>"; // the parameter value has to be returned from the function
         } 
         else {
-            return "<p>Wrong ❌.</p><br><p>Points:"+last_trial_points+"</p>"; // the parameter value has to be returned from the function
+            return "<div class='bigbox' id='feedback-bad'><p>Wrong ❌.</p><br><p>Points:"+last_trial_points+"</p></div>"; // the parameter value has to be returned from the function
         }
     }, 
+
+    // add additional data to current trial
     on_finish: (data) => {
         // add trial timestamps and other metadata
         data.trial_timestamp = new Date().toISOString();
@@ -382,7 +405,9 @@ var trial_table_length = trial_table.length;
 // }
 
 // prepare timeline
-var tl = [instructions, trial_procedure_prac, trial_procedure_exp, msg_exp_complete];
+//var tl = [instructions, trial_procedure_prac, trial_procedure_exp, msg_exp_complete];
+
+var tl = [instructions, trial_procedure_exp, msg_exp_complete];
 
 // jspsych event timeline
 jsPsych.run(tl);
