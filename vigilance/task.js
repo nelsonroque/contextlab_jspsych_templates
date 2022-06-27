@@ -86,7 +86,7 @@ document.body.className += onMobile ? "mobile" : "desktop";
 const jsPsych = initJsPsych({
     // setting the display element (default: body)
     display_element: "container",
-    
+
     // send data to server if browser interaction changes (e.g. participant leaves tab)
     on_interaction_data_update: () => {
         console.log("callback: on_interaction_data_update()");
@@ -282,7 +282,6 @@ var trial = {
         console.log("Stimuli value: " + jsPsych.timelineVariable('num'));
         console.log("response:" + data.response);
         console.log("response if spacebar:" + spacebar_pressed);
-        console.log("----------------------------------------");
 
         // coding accuracy
         // {SPACE} AND {0} = true
@@ -307,6 +306,7 @@ var trial = {
         // echo points to verify calculations
         data.current_points = current_points;
         console.log("current points:" + current_points);
+        console.log("----------------------------------------"); // end of console.log stream for this trial
 
         // add other metadata
         data.trial_type = "vigilance-stimuli";
