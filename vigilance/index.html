@@ -7,6 +7,12 @@
     <!-- needed so page does not zoom in case someone double taps -->
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0, maximum-scale=1.0" />
 
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">    
+
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
     <!-- Load JsPsych from root folder (so that it is shared across tasks) -->
     <script src="../jspsych/jspsych.js"></script>
     <script src="../jspsych/plugin-preload.js"></script>
@@ -21,24 +27,24 @@
     <link rel="stylesheet" href="../jspsych/jspsych.css" />
 
     <style>
-        .point_display {
-            font-size:100px;
-        }
+        .bigbox {
+            font-size: 120px; 
+            padding: 1em;
+            min-height: 300px;
 
-        .stimuli_box {
-            background-color: darkgrey; 
-            color: white; 
-            min-height: 300px; 
-            width:100%;
-            vertical-align: middle;
+            vertical-align: bottom;
             text-align: center;
         }
 
-        .vigilance_stimuli {
-            font-size:200px; 
+        #points {
+            font-size:2em;
+            color: black;
+            background-color: goldenrod;
+        }
+
+        #stimuli {
             color:white;
-            vertical-align: middle;
-            text-align: center;
+            background-color: darkgrey; 
         }
     </style>
 
@@ -47,8 +53,10 @@
     <!-- <link rel="manifest" href="manifest.json" /> -->
 </head>
 
-<body>
-    <div id="container"></div>
+<body class="container">
+    <div id="container">
+        <div id="points"></div>
+    </div>
     <script src="./task.js"></script>
 </body>
 
