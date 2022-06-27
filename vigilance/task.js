@@ -292,6 +292,11 @@ var trial = {
             data.accuracy_recode = "HIT";
             current_points = current_points + action_value;
         }
+        else if(jsPsych.pluginAPI.compareKeys(data.response, null) && jsPsych.timelineVariable('num') == '0') {
+            data.correct = false;
+            data.accuracy_recode = "MISS";
+            current_points = current_points - action_value;
+        } 
         else if(jsPsych.pluginAPI.compareKeys(data.response, null) && jsPsych.timelineVariable('num') != '0') {
             data.correct = true;
             data.accuracy_recode = "CORRECT_REJECTION";
